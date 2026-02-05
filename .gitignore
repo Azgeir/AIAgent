@@ -5,7 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
-aiagent.env
+.env
 
 # Virtual environments
 .venv
+.env
