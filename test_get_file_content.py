@@ -7,8 +7,10 @@ def test(working_directory, file_path):
     print(f)
 
 
-test("calculator", "main.py")
-test("calculator", "pkg/calculator.py")
-test("calculator", "/bin/cat")
-test("calculator", "pkg/does_not_exist.py")
 
+
+if __name__ == "__main__":
+    test("calculator", "main.py")
+    test("calculator", "pkg/calculator.py")
+    test("calculator", "/bin/cat")
+    test("calculator", "pkg/does_not_exist.py")
