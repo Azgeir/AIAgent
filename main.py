@@ -1,8 +1,10 @@
 import os
 import argparse
 from dotenv import load_dotenv
+from prompts import system_prompt
 from google import genai
 from google.genai import types
+from functions.call_function import available_functions
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -16,7 +18,8 @@ args = parser.parse_args()
 messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
 message = client.models.generate_content(
             model='gemini-2.5-flash', 
-            contents=messages
+            contents=messages,
+            config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt, temperature=0)
             )
 if message.usage_metadata == None:
     raise RuntimeError("Metadata is not available")
@@ -24,4 +27,8 @@ if args.verbose:
     print(f"User prompt: {args.user_prompt}")
     print(f"Prompt tokens: {message.usage_metadata.prompt_token_count}")
     print(f"Response tokens: {message.usage_metadata.candidates_token_count}")
-print(message.text)
+if message.function_calls != None:
+    for function_call in message.function_calls:
+        print(f"Calling function: {function_call.name}({function_call.args})")
+else:
+    print(message.text)

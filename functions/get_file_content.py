@@ -1,5 +1,8 @@
 import os
 from config import MAX_CHARS
+from google import genai
+from google.genai import types
+
 def get_file_content(working_directory, file_path):
     try:
         working_dir_abs = os.path.abspath(working_directory)
@@ -19,4 +22,19 @@ def get_file_content(working_directory, file_path):
 
     except Exception as e:
         return f"Error: {e}"
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Reads the first up to 10000 characters in a given file, and returns it as a string. Additionally, if the file is longer than 10000 characters, it ends the string stating when it was truncated'",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="file path to read from, relative to the working directory (default is the working directory itself)",
+            ),
+        },
+        required=["file_path"]
+    ),
+)
         
