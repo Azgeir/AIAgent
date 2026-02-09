@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from prompts import system_prompt
 from google import genai
 from google.genai import types
-from functions.call_function import available_functions
+from functions.call_function import call_function, available_functions
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -27,8 +27,17 @@ if args.verbose:
     print(f"User prompt: {args.user_prompt}")
     print(f"Prompt tokens: {message.usage_metadata.prompt_token_count}")
     print(f"Response tokens: {message.usage_metadata.candidates_token_count}")
+function_results= []
 if message.function_calls != None:
     for function_call in message.function_calls:
-        print(f"Calling function: {function_call.name}({function_call.args})")
+        function_call_result = call_function(function_call)
+        if len(function_call_result.parts) == 0:
+            raise Exception("Function call list is empty")
+        if not function_call_result.parts[0].function_response:
+            raise Exception("FunctionResponse is None")
+        if not function_call_result.parts[0].function_response.response:
+            raise Exception("FunctionResponse.response is None")
+        function_results += function_call_result.parts[0]
+        print(f"-> {function_call_result.parts[0].function_response.response}")
 else:
     print(message.text)
